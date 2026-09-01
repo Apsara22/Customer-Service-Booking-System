@@ -269,9 +269,16 @@ const Register = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl group-hover:blur-2xl transition-all duration-300" />
           </button>
 
-          {/* Terms */}
-          <p className="text-center text-white/40 text-sm mt-4">
-            By signing up, you agree to our Terms & Conditions
+          {/* Login */}
+          <p className="text-center text-white/50 text-sm mt-5">
+            Already have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="text-purple-400 hover:text-pink-400 transition-colors"
+            >
+              Login
+            </button>
           </p>
         </form>
       </div>
