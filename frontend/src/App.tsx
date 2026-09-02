@@ -16,6 +16,7 @@ import MainLayout from "./components/layout/MainLayout";
 import ServiceCategories from "./components/pages/services/ServiceCategoreis";
 import Services from "./components/pages/services/Services";
 import ServiceDetails from "./components/pages/services/ServiceDetails";
+import Booking from "./components/pages/services/Booking";
 
 /* ============================================= */
 /* PROTECTED LAYOUT                               */
@@ -121,14 +122,7 @@ const App = () => {
             path="/services/:categoryId/:serviceId/booking"
             element={
               <ProtectedLayout>
-                <div className="text-center">
-                  <h1 className="text-3xl font-bold text-white">
-                    Booking Page
-                  </h1>
-                  <p className="mt-3 text-white/60">
-                    Select your date and time.
-                  </p>
-                </div>
+                <Booking />
               </ProtectedLayout>
             }
           />

@@ -16,3 +16,22 @@ export interface Service {
   duration: number;
   isAvailable: boolean;
 }
+
+/**
+ * Available time slot
+ */
+export interface AvailabilitySlot {
+  id: string;
+  start_time: string;
+  end_time: string;
+  available: boolean;
+}
+
+/**
+ * Service availability response
+ */
+export interface ServiceAvailabilityResponse {
+  service_id: string;
+  date: string;
+  slots: AvailabilitySlot[];
+}

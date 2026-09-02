@@ -1,4 +1,3 @@
-
 import {
   FaHome,
   FaTools,
@@ -9,6 +8,7 @@ import {
   FaQuestionCircle,
   FaChevronDown,
   FaChevronRight,
+  FaLock,
 } from "react-icons/fa";
 
 import { useNavigate, useLocation } from "react-router-dom";
@@ -24,37 +24,41 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Service category dropdown state
   const [isServicesOpen, setIsServicesOpen] = useState(
     location.pathname.startsWith("/services")
   );
 
-  // Customer navigation items
+  // Available navigation items
   const navItems = [
     {
       icon: FaHome,
       label: "Dashboard",
       path: "/dashboard",
+      available: true,
     },
     {
       icon: FaCalendarAlt,
       label: "My Bookings",
       path: "/bookings",
+      available: true,
     },
     {
       icon: FaHistory,
       label: "Booking History",
       path: "/booking-history",
+      available: false,
     },
     {
       icon: FaEnvelope,
       label: "Messages",
       path: "/messages",
+      available: false,
     },
     {
       icon: FaCog,
       label: "Settings",
       path: "/settings",
+      available: false,
     },
   ];
 
@@ -73,7 +77,10 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
     >
       <div className="p-4">
 
-        {/* Main Menu */}
+        {/* ============================= */}
+        {/* CUSTOMER MENU */}
+        {/* ============================= */}
+
         <div className="mb-6">
           <h3
             className="text-xs font-semibold
@@ -84,34 +91,84 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
           </h3>
         </div>
 
-        {/* Dashboard */}
-        <button
-          type="button"
-          onClick={() => navigate("/dashboard")}
-          className={`w-full flex items-center gap-3
-            px-4 py-3 rounded-lg
-            transition-all group
-            ${
-              location.pathname === "/dashboard"
-                ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
-                : "text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-            }`}
-        >
-          <FaHome
-            className={`w-5 h-5
-              ${
-                location.pathname === "/dashboard"
-                  ? "text-purple-600 dark:text-purple-400"
-                  : "text-gray-500 dark:text-gray-400 group-hover:text-purple-600"
-              }`}
-          />
+        {/* ============================= */}
+        {/* NAVIGATION ITEMS */}
+        {/* ============================= */}
 
-          <span className="text-sm font-medium">
-            Dashboard
-          </span>
-        </button>
+        <ul className="space-y-2">
 
-        {/* Services */}
+          {navItems.map((item) => {
+            const Icon = item.icon;
+
+            const isActive =
+              location.pathname === item.path;
+
+            return (
+              <li key={item.path}>
+
+                <button
+                  type="button"
+                  disabled={!item.available}
+                  onClick={() => {
+                    if (item.available) {
+                      navigate(item.path);
+                    }
+                  }}
+                  className={`w-full flex items-center gap-3
+                    px-4 py-3 rounded-lg
+                    transition-all group text-left
+
+                    ${
+                      !item.available
+                        ? "text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-60"
+                        : isActive
+                        ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                    }
+                  `}
+                >
+
+                  <Icon
+                    className={`w-5 h-5 transition-colors
+
+                      ${
+                        !item.available
+                          ? "text-gray-400 dark:text-gray-600"
+                          : isActive
+                          ? "text-purple-600 dark:text-purple-400"
+                          : "text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400"
+                      }
+
+                    `}
+                  />
+
+                  <span className="text-sm font-medium">
+                    {item.label}
+                  </span>
+
+                  {/* Coming Soon / Unavailable */}
+                  {!item.available && (
+                    <span className="ml-auto flex items-center gap-1">
+                      <FaLock className="w-3 h-3" />
+
+                      <span className="text-[10px]">
+                        Soon
+                      </span>
+                    </span>
+                  )}
+
+                </button>
+
+              </li>
+            );
+          })}
+
+        </ul>
+
+        {/* ============================= */}
+        {/* SERVICES */}
+        {/* ============================= */}
+
         <div className="mt-2">
 
           {/* Services Main Button */}
@@ -123,19 +180,25 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
             className={`w-full flex items-center gap-3
               px-4 py-3 rounded-lg
               transition-all group
+
               ${
                 location.pathname.startsWith("/services")
                   ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
                   : "text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-              }`}
+              }
+            `}
           >
+
             <FaTools
               className={`w-5 h-5
+
                 ${
                   location.pathname.startsWith("/services")
                     ? "text-purple-600 dark:text-purple-400"
-                    : "text-gray-500 dark:text-gray-400 group-hover:text-purple-600"
-                }`}
+                    : "text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400"
+                }
+
+              `}
             />
 
             <span className="text-sm font-medium">
@@ -143,111 +206,89 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
             </span>
 
             <span className="ml-auto">
+
               {isServicesOpen ? (
                 <FaChevronDown className="w-3 h-3" />
               ) : (
                 <FaChevronRight className="w-3 h-3" />
               )}
+
             </span>
+
           </button>
 
-          {/* Service Categories Dropdown */}
+          {/* Service Categories */}
           {isServicesOpen && (
-            <div className="ml-4 mt-2 pl-3 border-l border-gray-200 dark:border-gray-700">
+            <div
+              className="ml-4 mt-2 pl-3
+                border-l border-gray-200
+                dark:border-gray-700"
+            >
 
               {serviceCategories.map((category) => {
-                const categoryPath = `/services/${category.id}`;
+
+                const categoryPath =
+                  `/services/${category.id}`;
 
                 const isCategoryActive =
                   location.pathname === categoryPath;
 
-                // React Icon component
                 const Icon = category.icon;
 
                 return (
                   <button
                     key={category.id}
                     type="button"
-                    onClick={() => navigate(categoryPath)}
+                    onClick={() =>
+                      navigate(categoryPath)
+                    }
                     className={`w-full flex items-center gap-3
                       px-3 py-2.5 rounded-lg
                       text-left transition-all
+
                       ${
                         isCategoryActive
                           ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
                           : "text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400"
-                      }`}
+                      }
+                    `}
                   >
-                    {/* Category Icon */}
+
                     <Icon
                       className={`w-4 h-4
+
                         ${
                           isCategoryActive
                             ? "text-purple-600 dark:text-purple-400"
                             : "text-gray-500 dark:text-gray-400"
-                        }`}
+                        }
+
+                      `}
                     />
 
-                    {/* Category Name */}
                     <span className="text-sm">
                       {category.name}
                     </span>
+
                   </button>
                 );
               })}
 
             </div>
           )}
+
         </div>
 
-        {/* Other Navigation Items */}
-        <ul className="space-y-2 mt-2">
+        {/* ============================= */}
+        {/* HELP SECTION */}
+        {/* ============================= */}
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
-
-            const isActive =
-              location.pathname === item.path;
-
-            return (
-              <li key={item.path}>
-                <button
-                  type="button"
-                  onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center gap-3
-                    px-4 py-3 rounded-lg
-                    transition-all group
-                    ${
-                      isActive
-                        ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                    }`}
-                >
-                  <Icon
-                    className={`w-5 h-5 transition-colors
-                      ${
-                        isActive
-                          ? "text-purple-600 dark:text-purple-400"
-                          : "text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400"
-                      }`}
-                  />
-
-                  <span className="text-sm font-medium">
-                    {item.label}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-
-        </ul>
-
-        {/* Help Section */}
         <div
           className="mt-8 pt-6
             border-t border-gray-200
             dark:border-gray-700"
         >
+
           <div
             className="bg-gradient-to-r
               from-purple-600/10 to-pink-600/10
@@ -268,6 +309,7 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
               </div>
 
               <div>
+
                 <p
                   className="text-sm font-semibold
                     text-gray-800 dark:text-white"
@@ -281,6 +323,7 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
                 >
                   Contact support
                 </p>
+
               </div>
 
             </div>
@@ -298,6 +341,7 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
             </button>
 
           </div>
+
         </div>
 
       </div>
@@ -306,4 +350,3 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
 };
 
 export default Sidebar;
-
