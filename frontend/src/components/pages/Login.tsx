@@ -49,7 +49,7 @@ const Login = () => {
       );
 
       // Redirect after successful login
-      navigate("/services");
+      navigate("/navbar");
     } catch (error) {
       setError(
         error instanceof Error
