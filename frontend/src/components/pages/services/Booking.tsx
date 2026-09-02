@@ -1,3 +1,4 @@
+
 // components/pages/services/Booking.tsx
 
 import {
@@ -30,6 +31,10 @@ import {
   getServiceAvailability,
 } from "../../../api/services/availabilityApi";
 
+import {
+  createBooking,
+} from "../../../api/services/bookingApi";
+
 import type {
   Service,
   AvailabilitySlot,
@@ -39,6 +44,10 @@ import type {
   Customer,
   Address,
 } from "../../../types/customer";
+
+import type {
+  Booking,
+} from "../../../types/booking";
 
 import PageBackground from "../../../components/PageBackground";
 
@@ -95,7 +104,7 @@ const Booking = () => {
     useState<string | null>(null);
 
   // =========================================
-  // BOOKING STATE
+  // BOOKING SELECTION STATE
   // =========================================
 
   const [selectedDate, setSelectedDate] =
@@ -128,10 +137,20 @@ const Booking = () => {
     useState(mockAddresses[0].id);
 
   // =========================================
-  // FORM ERROR
+  // FORM ERROR STATE
   // =========================================
 
   const [validationError, setValidationError] =
+    useState<string | null>(null);
+
+  // =========================================
+  // BOOKING API STATE
+  // =========================================
+
+  const [bookingLoading, setBookingLoading] =
+    useState(false);
+
+  const [bookingError, setBookingError] =
     useState<string | null>(null);
 
   // =========================================
@@ -140,6 +159,9 @@ const Booking = () => {
 
   const [bookingSuccessful, setBookingSuccessful] =
     useState(false);
+
+  const [createdBooking, setCreatedBooking] =
+    useState<Booking | null>(null);
 
   // =========================================
   // FETCH SERVICE
@@ -200,6 +222,8 @@ const Booking = () => {
 
       setSlots([]);
       setSelectedSlotId("");
+      setValidationError(null);
+      setBookingError(null);
 
       const data =
         await getServiceAvailability(
@@ -230,6 +254,8 @@ const Booking = () => {
 
     setSelectedDate(date);
     setValidationError(null);
+    setBookingError(null);
+    setSelectedSlotId("");
 
     if (date) {
       loadAvailability(date);
@@ -249,6 +275,7 @@ const Booking = () => {
   ) => {
     setSelectedSlotId(slotId);
     setValidationError(null);
+    setBookingError(null);
   };
 
   // =========================================
@@ -263,6 +290,7 @@ const Booking = () => {
     );
 
     setValidationError(null);
+    setBookingError(null);
   };
 
   // =========================================
@@ -288,8 +316,21 @@ const Booking = () => {
   // CONFIRM BOOKING
   // =========================================
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
+    // -----------------------------------------
+    // Clear previous errors
+    // -----------------------------------------
+
     setValidationError(null);
+    setBookingError(null);
+
+    // -----------------------------------------
+    // Prevent duplicate submission
+    // -----------------------------------------
+
+    if (bookingLoading) {
+      return;
+    }
 
     // -----------------------------------------
     // Validate service
@@ -352,10 +393,45 @@ const Booking = () => {
     }
 
     // -----------------------------------------
-    // BOOKING SUCCESS
+    // CREATE BOOKING
     // -----------------------------------------
 
-    setBookingSuccessful(true);
+    try {
+      setBookingLoading(true);
+
+      const booking =
+        await createBooking({
+          service_id: service.id,
+          slot_id: selectedSlot.id,
+          date: selectedDate,
+          customer: selectedCustomer,
+          address: selectedAddress,
+        });
+
+      // ---------------------------------------
+      // Save created booking
+      // ---------------------------------------
+
+      setCreatedBooking(booking);
+
+      // ---------------------------------------
+      // Show success screen
+      // ---------------------------------------
+
+      setBookingSuccessful(true);
+    } catch (error) {
+      // ---------------------------------------
+      // Handle API / business error
+      // ---------------------------------------
+
+      setBookingError(
+        error instanceof Error
+          ? error.message
+          : "Failed to create booking. Please try again."
+      );
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   // =========================================
@@ -368,7 +444,6 @@ const Booking = () => {
         <PageBackground />
 
         <section className="relative z-10 min-h-screen flex items-center justify-center px-4">
-
           <div className="text-center">
 
             <div
@@ -389,7 +464,6 @@ const Booking = () => {
             </p>
 
           </div>
-
         </section>
       </>
     );
@@ -432,11 +506,9 @@ const Booking = () => {
                 justify-center
               "
             >
-
               <FaExclamationTriangle
                 className="text-red-400 text-2xl"
               />
-
             </div>
 
             <h1 className="mt-5 text-2xl font-bold text-white">
@@ -480,7 +552,6 @@ const Booking = () => {
             </button>
 
           </div>
-
         </section>
       </>
     );
@@ -490,7 +561,7 @@ const Booking = () => {
   // BOOKING SUCCESS
   // =========================================
 
-  if (bookingSuccessful) {
+  if (bookingSuccessful && createdBooking) {
     return (
       <>
         <PageBackground />
@@ -544,6 +615,30 @@ const Booking = () => {
               successfully confirmed.
             </p>
 
+            {/* Booking Number */}
+
+            <div
+              className="
+                mt-5
+                inline-flex
+                items-center
+                px-4
+                py-2
+                rounded-lg
+                bg-green-500/10
+                border
+                border-green-400/20
+              "
+            >
+              <span className="text-sm text-white/50">
+                Booking No:
+              </span>
+
+              <span className="ml-2 text-sm font-semibold text-green-300">
+                {createdBooking.booking_number}
+              </span>
+            </div>
+
             {/* Booking Details */}
 
             <div
@@ -567,7 +662,7 @@ const Booking = () => {
                 </p>
 
                 <p className="mt-1 text-white font-medium">
-                  {service.name}
+                  {createdBooking.service.name}
                 </p>
               </div>
 
@@ -579,7 +674,7 @@ const Booking = () => {
                 </p>
 
                 <p className="mt-1 text-white">
-                  {selectedCustomer.name}
+                  {createdBooking.customer.name}
                 </p>
               </div>
 
@@ -591,7 +686,7 @@ const Booking = () => {
                 </p>
 
                 <p className="mt-1 text-white">
-                  {selectedDate}
+                  {createdBooking.scheduled_date}
                 </p>
               </div>
 
@@ -603,8 +698,8 @@ const Booking = () => {
                 </p>
 
                 <p className="mt-1 text-white">
-                  {selectedSlot?.start_time} -{" "}
-                  {selectedSlot?.end_time}
+                  {createdBooking.start_time} -{" "}
+                  {createdBooking.end_time}
                 </p>
               </div>
 
@@ -616,8 +711,34 @@ const Booking = () => {
                 </p>
 
                 <p className="mt-1 text-white">
-                  {selectedAddress?.address_line}
+                  {createdBooking.address.address_line}
                 </p>
+              </div>
+
+              {/* Status */}
+
+              <div>
+                <p className="text-xs uppercase tracking-wide text-white/40">
+                  Status
+                </p>
+
+                <span
+                  className="
+                    mt-1
+                    inline-flex
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-green-500/10
+                    border
+                    border-green-400/20
+                    text-green-300
+                    text-xs
+                    font-medium
+                  "
+                >
+                  {createdBooking.status}
+                </span>
               </div>
 
               {/* Price */}
@@ -632,16 +753,14 @@ const Booking = () => {
                   justify-between
                 "
               >
-
                 <span className="text-white/60">
                   Total
                 </span>
 
                 <span className="text-xl font-bold text-white">
-                  Rs.{" "}
-                  {service.price.toLocaleString()}
+                  {createdBooking.currency}{" "}
+                  {createdBooking.price.toLocaleString()}
                 </span>
-
               </div>
 
             </div>
@@ -652,7 +771,9 @@ const Booking = () => {
 
               <button
                 type="button"
-                onClick={() => navigate("/bookings")}
+                onClick={() =>
+                  navigate("/bookings")
+                }
                 className="
                   flex-1
                   py-3
@@ -697,7 +818,6 @@ const Booking = () => {
             </p>
 
           </div>
-
         </section>
       </>
     );
@@ -938,6 +1058,8 @@ const Booking = () => {
 
                 </div>
 
+                {/* No date */}
+
                 {!selectedDate && (
                   <div className="mt-6 text-center py-8">
 
@@ -955,6 +1077,8 @@ const Booking = () => {
 
                   </div>
                 )}
+
+                {/* Loading */}
 
                 {selectedDate &&
                   availabilityLoading && (
@@ -979,6 +1103,8 @@ const Booking = () => {
 
                     </div>
                   )}
+
+                {/* Availability error */}
 
                 {selectedDate &&
                   !availabilityLoading &&
@@ -1007,6 +1133,8 @@ const Booking = () => {
                     </div>
                   )}
 
+                {/* Empty slots */}
+
                 {selectedDate &&
                   !availabilityLoading &&
                   !availabilityError &&
@@ -1028,6 +1156,8 @@ const Booking = () => {
 
                     </div>
                   )}
+
+                {/* Slots */}
 
                 {selectedDate &&
                   !availabilityLoading &&
@@ -1053,10 +1183,15 @@ const Booking = () => {
                           <button
                             key={slot.id}
                             type="button"
-                            disabled={!slot.available}
+                            disabled={
+                              !slot.available ||
+                              bookingLoading
+                            }
                             onClick={() =>
                               slot.available &&
-                              handleSlotSelect(slot.id)
+                              handleSlotSelect(
+                                slot.id
+                              )
                             }
                             className={`
                               p-4
@@ -1233,6 +1368,7 @@ const Booking = () => {
                   <select
                     value={selectedAddressId}
                     onChange={handleAddressChange}
+                    disabled={bookingLoading}
                     className="
                       w-full
                       px-4
@@ -1246,6 +1382,7 @@ const Booking = () => {
                       focus:border-purple-400
                       focus:ring-2
                       focus:ring-purple-500/30
+                      disabled:opacity-50
                     "
                   >
 
@@ -1289,6 +1426,40 @@ const Booking = () => {
                     <p className="text-sm text-red-300">
                       {validationError}
                     </p>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* ================================= */}
+              {/* BOOKING API ERROR */}
+              {/* ================================= */}
+
+              {bookingError && (
+                <div
+                  className="
+                    p-4
+                    rounded-xl
+                    bg-red-500/10
+                    border
+                    border-red-400/20
+                  "
+                >
+
+                  <div className="flex items-start gap-3">
+
+                    <FaExclamationTriangle className="mt-0.5 text-red-400" />
+
+                    <div>
+                      <p className="text-sm font-medium text-red-300">
+                        Booking Failed
+                      </p>
+
+                      <p className="mt-1 text-sm text-red-300/80">
+                        {bookingError}
+                      </p>
+                    </div>
 
                   </div>
 
@@ -1425,7 +1596,7 @@ const Booking = () => {
                   </div>
 
                   <span className="text-xl font-bold text-white">
-                    Rs.{" "}
+                    NPR{" "}
                     {service.price.toLocaleString()}
                   </span>
 
@@ -1436,6 +1607,7 @@ const Booking = () => {
                 <button
                   type="button"
                   onClick={handleConfirmBooking}
+                  disabled={bookingLoading}
                   className="
                     mt-6
                     w-full
@@ -1451,9 +1623,32 @@ const Booking = () => {
                     hover:shadow-lg
                     hover:shadow-purple-500/20
                     transition-all
+                    disabled:opacity-60
+                    disabled:cursor-not-allowed
+                    disabled:hover:shadow-none
                   "
                 >
-                  Confirm Booking
+                  {bookingLoading ? (
+                    <span className="flex items-center justify-center gap-3">
+
+                      <span
+                        className="
+                          w-5
+                          h-5
+                          border-2
+                          border-white/30
+                          border-t-white
+                          rounded-full
+                          animate-spin
+                        "
+                      />
+
+                      Confirming Booking...
+
+                    </span>
+                  ) : (
+                    "Confirm Booking"
+                  )}
                 </button>
 
                 <p className="mt-3 text-center text-xs text-white/40">
@@ -1475,3 +1670,4 @@ const Booking = () => {
 };
 
 export default Booking;
+

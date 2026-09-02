@@ -45,20 +45,20 @@ const Sidebar = ({ isSidebarOpen }: SidebarProps) => {
     {
       icon: FaHistory,
       label: "Booking History",
-      path: "/booking-history",
-      available: false,
+      path: "booking-history",
+      available: true,
     },
     {
       icon: FaEnvelope,
       label: "Messages",
-      path: "/messages",
-      available: false,
+      path: "messages",
+      available: true,
     },
     {
       icon: FaCog,
       label: "Settings",
-      path: "/settings",
-      available: false,
+      path: "settings",
+      available: true,
     },
   ];
 
