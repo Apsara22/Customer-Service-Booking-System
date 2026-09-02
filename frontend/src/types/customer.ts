@@ -6,6 +6,13 @@ export interface Customer {
   password: string;
 }
 
+export interface BookingCustomer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
 export interface RegisterCustomerInput {
   name: string;
   email: string;

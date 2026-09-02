@@ -19,7 +19,7 @@ import ServiceDetails from "./components/pages/services/ServiceDetails";
 
 import MyBookings from "./components/pages/bookings/MyBookings";
 import BookingDetails from "./components/pages/bookings/BookingDetails";
-import Booking from "./components/pages/bookings/Booking";
+// import Booking from "./components/pages/bookings/Booking";
 
 /* ============================================= */
 /* PROTECTED LAYOUT                               */
@@ -121,14 +121,14 @@ const App = () => {
           {/* ========================================= */}
           {/* BOOKING */}
           {/* ========================================= */}
-          <Route
+          {/* <Route
             path="/services/:categoryId/:serviceId/booking"
             element={
               <ProtectedLayout>
                 <Booking />
               </ProtectedLayout>
             }
-          />
+          /> */}
 
           {/* MY BOOKINGS                              */}
           {/* ========================================= */}
