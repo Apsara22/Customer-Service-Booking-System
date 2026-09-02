@@ -50,7 +50,7 @@ const ServiceDetails = () => {
               {service.description}
             </p>
 
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
 
               {/* Price */}
               <div className="bg-white/10 rounded-lg p-4">
@@ -78,19 +78,56 @@ const ServiceDetails = () => {
 
               </div>
 
+              {/* Availability */}
+              <div className="bg-white/10 rounded-lg p-4">
+
+                <p className="text-white/50 text-sm">
+                  Availability
+                </p>
+
+                <p
+                  className={`text-xl font-semibold ${
+                    service.isAvailable
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {service.isAvailable
+                    ? "Available"
+                    : "Unavailable"}
+                </p>
+
+              </div>
+
             </div>
 
             {/* Booking Button */}
             <button
               type="button"
+              disabled={!service.isAvailable}
               onClick={() =>
                 navigate(
                   `/services/${service.categoryId}/${service.id}/booking`
                 )
               }
-              className="mt-8 w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg"
+              className={`
+                mt-8
+                w-full
+                py-3
+                text-white
+                font-semibold
+                rounded-lg
+                transition
+                ${
+                  service.isAvailable
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90"
+                    : "bg-gray-600 cursor-not-allowed opacity-60"
+                }
+              `}
             >
-              Book This Service
+              {service.isAvailable
+                ? "Book This Service"
+                : "Service Unavailable"}
             </button>
 
           </div>

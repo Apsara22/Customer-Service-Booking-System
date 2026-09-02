@@ -14,4 +14,5 @@ export interface Service {
   description: string;
   price: number;
   duration: number;
+  isAvailable: boolean;
 }

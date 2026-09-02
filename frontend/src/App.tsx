@@ -1,6 +1,11 @@
 // App.tsx
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import PageBackground from "./components/PageBackground";
 import Welcome from "./components/Welcome";
@@ -11,6 +16,26 @@ import MainLayout from "./components/layout/MainLayout";
 import ServiceCategories from "./components/pages/services/ServiceCategoreis";
 import Services from "./components/pages/services/Services";
 import ServiceDetails from "./components/pages/services/ServiceDetails";
+
+/* ============================================= */
+/* PROTECTED LAYOUT                               */
+/* Only renders Navbar + Sidebar when a customer  */
+/* is logged in. Otherwise redirects to /login.   */
+/* ============================================= */
+const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+  const customer = localStorage.getItem("customer");
+
+  if (!customer) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <SidebarProvider>
+      <Navbar />
+      <MainLayout>{children}</MainLayout>
+    </SidebarProvider>
+  );
+};
 
 const App = () => {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -30,76 +55,89 @@ const App = () => {
       {showWelcome ? (
         <Welcome />
       ) : (
-        <SidebarProvider>
-          <Navbar />
-          <Routes>
-            {/* ========================================= */}
-            {/* AUTH */}
-            {/* ========================================= */}
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+        <Routes>
+          {/* ========================================= */}
+          {/* AUTH - Navbar is NOT rendered here */}
+          {/* ========================================= */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
 
-            {/* ========================================= */}
-            {/* ALL SERVICE CATEGORIES */}
-            {/* ========================================= */}
-            <Route
-              path="/services"
-              element={
-                <MainLayout>
-                  <ServiceCategories />
-                </MainLayout>
-              }
-            />
+          {/* ========================================= */}
+          {/* DASHBOARD - lands here after login */}
+          {/* ========================================= */}
+          <Route
+            path="/navbar"
+            element={
+              <ProtectedLayout>
+                <div className="text-center">
+                  <h1 className="text-3xl font-bold text-white">
+                    Dashboard
+                  </h1>
+                </div>
+              </ProtectedLayout>
+            }
+          />
 
-            {/* ========================================= */}
-            {/* SERVICES INSIDE CATEGORY */}
-            {/* ========================================= */}
-            <Route
-              path="/services/:categoryId"
-              element={
-                <MainLayout>
-                  <Services />
-                </MainLayout>
-              }
-            />
+          {/* ========================================= */}
+          {/* ALL SERVICE CATEGORIES */}
+          {/* ========================================= */}
+          <Route
+            path="/services"
+            element={
+              <ProtectedLayout>
+                <ServiceCategories />
+              </ProtectedLayout>
+            }
+          />
 
-            {/* ========================================= */}
-            {/* SERVICE DETAILS */}
-            {/* ========================================= */}
-            <Route
-              path="/services/:categoryId/:serviceId"
-              element={
-                <MainLayout>
-                  <ServiceDetails />
-                </MainLayout>
-              }
-            />
+          {/* ========================================= */}
+          {/* SERVICES INSIDE CATEGORY */}
+          {/* ========================================= */}
+          <Route
+            path="/services/:categoryId"
+            element={
+              <ProtectedLayout>
+                <Services />
+              </ProtectedLayout>
+            }
+          />
 
-            {/* ========================================= */}
-            {/* BOOKING */}
-            {/* ========================================= */}
-            <Route
-              path="/services/:categoryId/:serviceId/booking"
-              element={
-                <MainLayout>
-                  <div className="text-center">
-                    <h1 className="text-3xl font-bold text-white">
-                      Booking Page
-                    </h1>
-                    <p className="mt-3 text-white/60">
-                      Select your date and time.
-                    </p>
-                  </div>
-                </MainLayout>
-              }
-            />
+          {/* ========================================= */}
+          {/* SERVICE DETAILS */}
+          {/* ========================================= */}
+          <Route
+            path="/services/:categoryId/:serviceId"
+            element={
+              <ProtectedLayout>
+                <ServiceDetails />
+              </ProtectedLayout>
+            }
+          />
 
-            {/* ========================================= */}
-            {/* FALLBACK */}
-            {/* ========================================= */}
-            <Route path="*" element={<Navigate to="/register" replace />} />
-          </Routes>
-        </SidebarProvider>
+          {/* ========================================= */}
+          {/* BOOKING */}
+          {/* ========================================= */}
+          <Route
+            path="/services/:categoryId/:serviceId/booking"
+            element={
+              <ProtectedLayout>
+                <div className="text-center">
+                  <h1 className="text-3xl font-bold text-white">
+                    Booking Page
+                  </h1>
+                  <p className="mt-3 text-white/60">
+                    Select your date and time.
+                  </p>
+                </div>
+              </ProtectedLayout>
+            }
+          />
+
+          {/* ========================================= */}
+          {/* FALLBACK */}
+          {/* ========================================= */}
+          <Route path="*" element={<Navigate to="/register" replace />} />
+        </Routes>
       )}
     </BrowserRouter>
   );
