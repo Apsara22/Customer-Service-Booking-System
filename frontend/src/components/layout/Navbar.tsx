@@ -4,7 +4,6 @@ import {
   FaUser,
   FaCog,
   FaBell,
-  FaEnvelope,
   FaSearch,
   FaBars,
   FaTimes,
