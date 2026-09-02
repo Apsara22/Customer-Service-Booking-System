@@ -16,7 +16,7 @@ import MainLayout from "./components/layout/MainLayout";
 import ServiceCategories from "./components/pages/services/ServiceCategoreis";
 import Services from "./components/pages/services/Services";
 import ServiceDetails from "./components/pages/services/ServiceDetails";
-import Booking from "./components/pages/services/Booking";
+import Booking from "./components/pages/bookings/Booking";
 import MyBookings from "./components/pages/services/MyBookings";
 import BookingDetails from "./components/pages/services/BookingDetails";
 

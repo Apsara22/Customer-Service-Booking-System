@@ -49,7 +49,7 @@ import type {
   Booking,
 } from "../../../types/booking";
 
-import PageBackground from "../../../components/PageBackground";
+import PageBackground from "../../PageBackground";
 
 // =========================================
 // MOCK CUSTOMER DATA
